@@ -6,7 +6,6 @@ from P_MAS_TG.planner import ltl_planner
 
 import time
 
-
 ##############################
 # motion FTS
 ap = {'p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8', 'p9'}
