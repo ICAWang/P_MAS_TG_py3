@@ -6,6 +6,7 @@ import time
 import numpy as np
 
 from matplotlib import pyplot as plt
+from matplotlib.patches import Ellipse, Circle
 from matplotlib import colors
 from matplotlib import ticker
 
@@ -114,6 +115,7 @@ if __name__ == '__main__':
     comm_pos_multi_set = [[[(0,0) for n in range(agent_num)]] for i in range(5)] #initial five position
     comm_agent_distance = [0.0 for i in range(5)]
     time_start = time.process_time()
+    """
     for i1, j1 in search_point_set:
         for i2, j2 in search_point_set:
             for i3, j3 in search_point_set:
@@ -149,12 +151,20 @@ if __name__ == '__main__':
     print(comm_agent_distance)
     print(comm_pos_multi_set)
     
-    m = 4
+    """
+    comm_pos_multi_set = [[(43, 54), (48, 54), (48, 49)], [(43, 54), (48, 54), (51, 50)], [(44, 54), (49, 54), (49, 49)], [(45, 54), (50, 54), (50, 49)], [(46, 52), (43, 55), (46, 47)]]
+    m = 0
     comm_pos_multi = [(0,0) for i in range(agent_num*2)]
-    if i in range(agent_num):
-        comm_pos_multi[i] = comm_pos_multi_set[4][i]
+    for i in range(agent_num):
+        comm_pos_multi[2*i] = comm_pos_multi_set[m][i]
+        comm_pos_multi[2*i+1] = comm_pos_multi_set[m][i]
+        
+    print("The distance of each agents is " + str(1111))
 
     finalpath = dijkstra.path_generate_multi(start_points, comm_pos_multi)
+    
+    
+
     # minmax = comm_agent_distance[4]
     # for i in range(4):
     #     if comm_agent_distance[i] > minmax:
@@ -168,6 +178,7 @@ if __name__ == '__main__':
     # Draw the result
     #===========================================
     fig = plt.figure(figsize = (10,10))
+    ax = fig.add_subplot(111)
     plt.xlim(-1,101)
     plt.ylim(-1,101)
     plt.xticks(np.arange(0,105,5))
@@ -190,12 +201,19 @@ if __name__ == '__main__':
         plt.plot(obstacle_points[i][0],obstacle_points[i][1],'sk', markersize=6)
 
     for i in range(len(search_point_set)):
-        plt.plot(search_point_set[i][0],search_point_set[i][1],'sy', markersize=6)   
+        plt.plot(search_point_set[i][0],search_point_set[i][1],'sy', markersize=3)   
+
+
+    plt.plot(comm_pos_set[1][0], comm_pos_set[1][1], '.', markersize=10)
+    circle_total = plt.Circle(comm_pos_set[1], region_radius, color='r', fill=False)
+    plt.gcf().gca().add_artist(circle_total)
 
     # the generated final path
     colortype = ['blue', 'red', 'green']
-    plt.plot(comm_pos_set[i][0], comm_pos_set[i][1], '*', markersize=10)
+
     for j in range(0, agent_num*2, 2):
+        plt.plot(comm_pos_multi[j][0], comm_pos_multi[j][1], '*', markersize=10)
+
         path_x, path_y = [],[]
         for k in range(len(finalpath[j])):
             path_x.append(finalpath[j][k][0])
@@ -207,7 +225,9 @@ if __name__ == '__main__':
             path_x.append(finalpath[j+1][k][0])
             path_y.append(finalpath[j+1][k][1])
         plt.plot(path_x, path_y, linestyle='-', color=colortype[int(j/2)])
-
+        
+        circle_agent = plt.Circle(comm_pos_multi[j], comm_radius/2, color='k', fill=False)
+        plt.gcf().gca().add_artist(circle_agent)
 
     plt.title("Grid map simulation")
     plt.show()

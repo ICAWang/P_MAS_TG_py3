@@ -216,7 +216,8 @@ class Dijkstra:
                         comm_pos_set.append((i, j))
                         agent_distance.append(p_distance)
 
-        print(agent_distance)
+        print("The max distance is %.2f m." %max_distance)
+        print("The position can be " + str(comm_pos_set))
         return comm_pos_set, agent_distance
 
 
