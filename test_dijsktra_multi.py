@@ -4,7 +4,6 @@ from cmath import inf
 import math
 import time
 import numpy as np
-import seaborn as sns
 
 from matplotlib import pyplot as plt
 from matplotlib import colors
@@ -96,19 +95,16 @@ if __name__ == '__main__':
     costmap_dict_multi, costmap_list_multi, costmap_xy_multi = dijkstra.planning_map_multiagent(start_points)
     comm_pos_set, agent_distance = dijkstra.min_max_distance(start_points, costmap_list_multi)
     print("This process 1 executes for %.4f s" %((time.process_time()-time_start)))
-    goal_num = len(comm_pos_set)
-    finalpath = dijkstra.path_generate_multi(start_points, comm_pos_set)
+    #finalpath = dijkstra.path_generate_multi(start_points, comm_pos_set)
     region_radius = (agent_num - 1) * comm_radius
 
     adjacency = np.zeros((agent_num, agent_num))
-    n = 1
     
+    n = 1  # choose a communication point
     i_set = [k for k in range(comm_pos_set[n][0]-region_radius, comm_pos_set[n][0]+region_radius)]
     j_set = [k for k in range(comm_pos_set[n][1]-region_radius, comm_pos_set[n][1]+region_radius)]
-
     # generate search set
     search_point_set = []
-
     for i in i_set:
         for j in j_set:
             if (i,j) not in obstacle_points:
@@ -150,7 +146,15 @@ if __name__ == '__main__':
                         comm_agent_distance[4] = max_distance
     
     print("This process 2 executes for %.4f s" %((time.process_time()-time_start)))
+    print(comm_agent_distance)
+    print(comm_pos_multi_set)
+    
+    m = 4
+    comm_pos_multi = [(0,0) for i in range(agent_num*2)]
+    if i in range(agent_num):
+        comm_pos_multi[i] = comm_pos_multi_set[4][i]
 
+    finalpath = dijkstra.path_generate_multi(start_points, comm_pos_multi)
     # minmax = comm_agent_distance[4]
     # for i in range(4):
     #     if comm_agent_distance[i] > minmax:
@@ -189,21 +193,21 @@ if __name__ == '__main__':
         plt.plot(search_point_set[i][0],search_point_set[i][1],'sy', markersize=6)   
 
     # the generated final path
-    i = 0
     colortype = ['blue', 'red', 'green']
     plt.plot(comm_pos_set[i][0], comm_pos_set[i][1], '*', markersize=10)
     for j in range(0, agent_num*2, 2):
         path_x, path_y = [],[]
-        for k in range(len(finalpath[i][j])):
-            path_x.append(finalpath[i][j][k][0])
-            path_y.append(finalpath[i][j][k][1])
+        for k in range(len(finalpath[j])):
+            path_x.append(finalpath[j][k][0])
+            path_y.append(finalpath[j][k][1])
         plt.plot(path_x, path_y, linestyle='-', color=colortype[int(j/2)])
         
         path_x, path_y = [],[]
-        for k in range(len(finalpath[i][j+1])):
-            path_x.append(finalpath[i][j+1][k][0])
-            path_y.append(finalpath[i][j+1][k][1])
+        for k in range(len(finalpath[j+1])):
+            path_x.append(finalpath[j+1][k][0])
+            path_y.append(finalpath[j+1][k][1])
         plt.plot(path_x, path_y, linestyle='-', color=colortype[int(j/2)])
+
 
     plt.title("Grid map simulation")
     plt.show()

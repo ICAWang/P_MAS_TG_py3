@@ -258,17 +258,17 @@ class Dijkstra:
         Input:
             start_pos_set (a list of 2-d tuple): start position of multi agents [(x1,y1),(x2,y2),...], [m]
             goal_pos_set (a list of 2-d tuple): multi goal position [(x1,y1),(x2,y2),...], [m]
+            Notice: the number of 'start_pos_set' and 'goal_pos_set' should be the same!
 
         Output:
             finalpath (a list of 2-d tuple with goal_num*agent_num dimensional)
         """       
         agent_num = len(start_pos_set)
-        goal_num = len(goal_pos_set)
 
-        finalpath = [[[] for i in range(agent_num)] for i in range(goal_num)]
-        for i in range(goal_num):
-            for j in range(agent_num):
-                finalpath[i][j] = self.planning_goal(start_pos_set[j], goal_pos_set[i])
+        finalpath = [[] for i in range(agent_num)]
+
+        for i in range(agent_num):
+            finalpath[i] = self.planning_goal(start_pos_set[i], goal_pos_set[i])
         
         return finalpath
 
