@@ -44,7 +44,7 @@ def if_graphconnect(G):
 if __name__ == '__main__':
 
     map_size = 100
-    agent_radius = 1.5
+    agent_radius = 1
     comm_radius = 5
     map = Map(map_size, map_size, agent_radius)
 
@@ -87,9 +87,9 @@ if __name__ == '__main__':
     # Dijkstra discrete planning
     #==============================================    
     dijkstra = Dijkstra(map.obstacle_map)
-    start_points = [(30,60), (30,55), 
-                    (75,65), (70,40), 
-                    (25,35), (75,25)]
+    start_points = [(30,60), (40,10), 
+                    (75,65), (30,55), 
+                    (70,40), (60,10)]
     agent_num = int(len(start_points)/2)
     time_start = time.process_time()
 
@@ -101,14 +101,14 @@ if __name__ == '__main__':
 
     adjacency = np.zeros((agent_num, agent_num))
     
-    num_comm_point = 0  # choose a communication point
-    i_set = [k for k in range(comm_pos_set[num_comm_point][0]-region_radius, comm_pos_set[num_comm_point][0]+region_radius+1)]
-    j_set = [k for k in range(comm_pos_set[num_comm_point][1]-region_radius, comm_pos_set[num_comm_point][1]+region_radius+1)]
+    n = 0  # choose a communication point
+    i_set = [k for k in range(comm_pos_set[n][0]-region_radius, comm_pos_set[n][0]+region_radius+1)]
+    j_set = [k for k in range(comm_pos_set[n][1]-region_radius, comm_pos_set[n][1]+region_radius+1)]
     # generate search set
     search_point_set = []
     for i in i_set:
         for j in j_set:
-            if not map.obstacle_map[i][j]:
+            if (i,j) not in obstacle_points:
                 search_point_set.append((i,j))
 
     max_distance = np.inf
@@ -120,15 +120,9 @@ if __name__ == '__main__':
         for i2, j2 in search_point_set:
             for i3, j3 in search_point_set:
                 # construct the adjacency matrix
-                """
-                adjacency_4 = [[inf,math.hypot(i1-i2, j1-j2),math.hypot(i1-i3, j1-j3),math.hypot(i1-i4, j1-j4)],
-                            [inf,inf,math.hypot(i2-i3, j2-j3),math.hypot(i2-i4, j2-j4)],
-                            [inf,inf,inf,math.hypot(i3-i4, j3-j4)],
-                            [inf,inf,inf,inf]]
-                """
                 adjacency = [[inf,math.hypot(i1-i2, j1-j2),math.hypot(i1-i3, j1-j3)],
-                            [inf,inf,math.hypot(i2-i3, j2-j3)],
-                            [inf,inf,inf]]
+                             [inf,inf,math.hypot(i2-i3, j2-j3)],
+                             [inf,inf,inf]]
 
                 for i in range(agent_num):
                     for j in range(agent_num):
@@ -141,10 +135,10 @@ if __name__ == '__main__':
 
                 if if_graphconnect(adjacency):
                     p_distance = [costmap_list_multi[0][i1][j1] + costmap_list_multi[1][i1][j1],
-                                    costmap_list_multi[2][i2][j2] + costmap_list_multi[3][i2][j2],
-                                    costmap_list_multi[4][i3][j3] + costmap_list_multi[5][i3][j3]]
+                                  costmap_list_multi[2][i2][j2] + costmap_list_multi[3][i2][j2],
+                                  costmap_list_multi[4][i3][j3] + costmap_list_multi[5][i3][j3]]
                 
-                    if max(p_distance) <= max_distance:
+                    if max(p_distance) < max_distance:
                         max_distance = max(p_distance)
                         for k in range(4):
                             comm_pos_multi_set[k] = comm_pos_multi_set[k+1]
@@ -152,9 +146,86 @@ if __name__ == '__main__':
 
                         comm_pos_multi_set[4] = [(i1,j1), (i2,j2), (i3,j3)]
                         comm_agent_distance[4] = max_distance
-                count += 1
-        print(count)
 
+                count += 1
+            print(count)
+                
     print("This process 2 executes for %.4f s" %((time.process_time()-time_start)))
     print("The distance of each agents is " + str(comm_agent_distance))
     print("The position of each agents is " + str(comm_pos_multi_set))
+    
+    comm_pos_multi_set = [[(43, 54), (48, 54), (48, 49)], [(43, 54), (48, 54), (51, 50)], [(44, 54), (49, 54), (49, 49)], [(45, 54), (50, 54), (50, 49)], [(46, 52), (43, 55), (46, 47)]]
+    m = 4
+    comm_pos_multi = [(0,0) for i in range(agent_num*2)]
+    for i in range(agent_num):
+        comm_pos_multi[2*i] = comm_pos_multi_set[m][i]
+        comm_pos_multi[2*i+1] = comm_pos_multi_set[m][i]
+        
+    finalpath = dijkstra.path_generate_multi(start_points, comm_pos_multi)
+    
+    
+    # minmax = comm_agent_distance[4]
+    # for i in range(4):
+    #     if comm_agent_distance[i] > minmax:
+    #         del comm_agent_distance[i]
+    #         del comm_pos_multi_set[i]
+    # print(comm_pos_multi_set, comm_agent_distance)
+
+
+    #===========================================
+    # Draw the result
+    #===========================================
+    fig = plt.figure(figsize = (10,10))
+    ax = fig.add_subplot(111)
+    plt.xlim(-1,101)
+    plt.ylim(-1,101)
+    plt.xticks(np.arange(0,105,5))
+    plt.yticks(np.arange(0,105,5))
+
+    plt.xlabel('x-axis')
+    plt.ylabel('y-axis')
+    
+    plt.gcf().set_facecolor(np.ones(3)* 240 / 255)
+    plt.grid(True, zorder=0)
+    """
+    # graph of the expansion obstacles
+    for i in range(map_size):
+        for j in range(map_size):
+            if map.obstacle_map[i][j]:
+                plt.plot(i,j,'sy', markersize=6)
+    """
+    # graph of the pure obstacles
+    for i in range(len(obstacle_points)):
+        plt.plot(obstacle_points[i][0],obstacle_points[i][1],'sk', markersize=6)
+
+    for i in range(len(search_point_set)):
+        plt.plot(search_point_set[i][0],search_point_set[i][1],'sy', markersize=3)   
+
+
+    plt.plot(comm_pos_set[0][0], comm_pos_set[0][1], '.', markersize=10)
+    circle_total = plt.Circle(comm_pos_set[1], region_radius, color='r', fill=False)
+    plt.gcf().gca().add_artist(circle_total)
+
+    # the generated final path
+    colortype = ['blue', 'red', 'green']
+
+    for j in range(0, agent_num*2, 2):
+        plt.plot(comm_pos_multi[j][0], comm_pos_multi[j][1], '*', markersize=10)
+
+        path_x, path_y = [],[]
+        for k in range(len(finalpath[j])):
+            path_x.append(finalpath[j][k][0])
+            path_y.append(finalpath[j][k][1])
+        plt.plot(path_x, path_y, linestyle='-', color=colortype[int(j/2)])
+        
+        path_x, path_y = [],[]
+        for k in range(len(finalpath[j+1])):
+            path_x.append(finalpath[j+1][k][0])
+            path_y.append(finalpath[j+1][k][1])
+        plt.plot(path_x, path_y, linestyle='-', color=colortype[int(j/2)])
+        
+        circle_agent = plt.Circle(comm_pos_multi[j], comm_radius/2, color='k', fill=False)
+        plt.gcf().gca().add_artist(circle_agent)
+
+    plt.title("Grid map simulation")
+    plt.show()

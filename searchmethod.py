@@ -52,7 +52,8 @@ class Dijkstra:
         open_set, closed_set = dict(), dict()  # key-value: hash list
         open_set[self.index(start_node)] = start_node
 
-        while True:
+        while open_set:
+                
             mincost_index = min(open_set, key=lambda i: open_set[i].cost)  # find the node with the minimal cost
             current_node = open_set[mincost_index]
 
@@ -62,7 +63,7 @@ class Dijkstra:
                 #goal_node = current_node
                 goal_node.pre_index = current_node.pre_index
                 goal_node.cost = current_node.cost
-                break
+                return self.path_generate(goal_node, closed_set)
             
             # remove the item from the open set
             del open_set[mincost_index]
@@ -88,8 +89,8 @@ class Dijkstra:
                 else:
                     if open_set[node_index].cost >= node.cost:
                         open_set[node_index] = node
-
-        return self.path_generate(goal_node, closed_set)
+        print('There is no path!!!')
+        return None
 
 
     def planning_map(self, start_pos):
@@ -182,7 +183,7 @@ class Dijkstra:
 
         Input:
             start_pos_set (a list of 2-d tuple): start position of multi agents [(x1,y1),(x2,y2),...], [m]
-
+            costmap_list_multi: the costmap of the multi start position
         Output:
             comm_pos_set (a list of 2-d tuple): the optimized communication position
             agent_distance (a list of float): the distance of ech agent
