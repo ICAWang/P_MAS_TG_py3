@@ -115,42 +115,8 @@ if __name__ == '__main__':
     comm_pos_multi_set = [[[(0,0) for n in range(agent_num)]] for i in range(5)] #initial five position
     comm_agent_distance = [0.0 for i in range(5)]
     time_start = time.process_time()
-    
-    for i1, j1 in search_point_set:
-        for i2, j2 in search_point_set:
-            for i3, j3 in search_point_set:
-                # construct the adjacency matrix
-                adjacency = [[inf,math.hypot(i1-i2, j1-j2),math.hypot(i1-i3, j1-j3)],
-                             [inf,inf,math.hypot(i2-i3, j2-j3)],
-                             [inf,inf,inf]]
-
-                for i in range(agent_num):
-                    for j in range(agent_num):
-                        if adjacency[i][j] <= comm_radius:
-                            adjacency[i][j] = 1
-                        else:
-                            adjacency[i][j] = 0
-
-                adjacency = np.mat(adjacency) + np.mat(adjacency).transpose()
-
-                if if_graphconnect(adjacency):
-                    p_distance = [costmap_list_multi[0][i1][j1] + costmap_list_multi[1][i1][j1],
-                                  costmap_list_multi[2][i2][j2] + costmap_list_multi[3][i2][j2],
-                                  costmap_list_multi[4][i3][j3] + costmap_list_multi[5][i3][j3]]
-                
-                    if max(p_distance) < max_distance:
-                        max_distance = max(p_distance)
-                        for k in range(4):
-                            comm_pos_multi_set[k] = comm_pos_multi_set[k+1]
-                            comm_agent_distance[k] = comm_agent_distance[k+1]
-
-                        comm_pos_multi_set[4] = [(i1,j1), (i2,j2), (i3,j3)]
-                        comm_agent_distance[4] = max_distance
-    
-    print("This process 2 executes for %.4f s" %((time.process_time()-time_start)))
-    print("The distance of each agents is " + str(comm_agent_distance))
-    print("The position of each agents is " + str(comm_pos_multi_set))
-    
+  
+  
     comm_pos_multi_set = [[(43, 54), (48, 54), (48, 49)], [(43, 54), (48, 54), (51, 50)], [(44, 54), (49, 54), (49, 49)], [(45, 54), (50, 54), (50, 49)], [(46, 52), (43, 55), (46, 47)]]
     m = 4
     comm_pos_multi = [(0,0) for i in range(agent_num*2)]
@@ -199,8 +165,8 @@ if __name__ == '__main__':
         plt.plot(search_point_set[i][0],search_point_set[i][1],'sy', markersize=3)   
 
 
-    plt.plot(comm_pos_set[0][0], comm_pos_set[0][1], '.', markersize=10)
-    circle_total = plt.Circle(comm_pos_set[1], region_radius, color='r', fill=False)
+    plt.plot(comm_pos_set[n][0], comm_pos_set[n][1], '.', markersize=10)
+    circle_total = plt.Circle(comm_pos_set[n], region_radius, color='r', fill=False)
     plt.gcf().gca().add_artist(circle_total)
 
     # the generated final path
