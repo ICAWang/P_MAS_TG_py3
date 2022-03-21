@@ -208,6 +208,5 @@ if __name__ == '__main__':
             path_y.append(finalpath[j+1][k][1])
         plt.plot(path_x, path_y, linestyle='-', color=colortype[int(j/2)])
 
-
     plt.title("Grid map simulation")
     plt.show()
