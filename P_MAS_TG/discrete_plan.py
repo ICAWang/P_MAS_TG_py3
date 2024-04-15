@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from types import ModuleType
 from .product import ProdAut_Run
 from collections import defaultdict
 from networkx import dijkstra_predecessor_and_distance
